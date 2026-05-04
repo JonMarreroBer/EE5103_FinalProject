@@ -155,6 +155,7 @@ int main() {
         while (true) {
             TelemetryData data = receiver->receive();
             tft.showDashboard(data.fps, data.cpuUsage, data.gpuUsage, data.ramUsage);
+            display->show(data);
         }
     }
     catch (const std::exception& error) {
