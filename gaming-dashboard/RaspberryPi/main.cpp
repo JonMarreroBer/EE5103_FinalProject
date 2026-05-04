@@ -14,6 +14,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <linux/spi/spidev.h>
+#include <gpiod.h>
+
+#include "ILI9341Display.h"
 
 // Class to represent the telemetry data received from the PC
 class TelemetryData {
@@ -144,9 +148,13 @@ int main() {
         std::unique_ptr<TelemetryReceiver> receiver =  std::make_unique<UDPReceiver>(5000);
         std::unique_ptr<Display> display = std::make_unique<ConsoleDisplay>();
 
+        ILI9341Display tft("/dev/spidev0.0", 25, 24);
+        tft.fillScreen(rgb565(0, 0, 0));
+        tft.drawText(20, 15, "GAMING DASHBOARD", rgb565(0, 255, 255), rgb565(0, 0, 0), 2);
+
         while (true) {
             TelemetryData data = receiver->receive();
-            display->show(data);
+            tft.showDashboard(data.fps, data.cpuUsage, data.gpuUsage, data.ramUsage);
         }
     }
     catch (const std::exception& error) {
